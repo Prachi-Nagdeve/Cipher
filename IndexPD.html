@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playfair Cipher Decoder</title>
+</head>
+<body>
+    <h1>Playfair Cipher Decoder</h1>
+    <form id="cipherForm">
+        <label for="ciphertext">Enter the ciphertext:</label>
+        <input type="text" id="ciphertext" name="ciphertext" required><br>
+
+        <label for="key">Enter the key (without repeating letters):</label>
+        <input type="text" id="key" name="key" required><br>
+
+        <input type="submit" value="Decode">
+    </form>
+
+    <div id="output">
+        <p>Decoded text will be displayed here.</p>
+    </div>
+
+    <script>
+        function createPlayfairMatrix(key) {
+            // Remove non-alphabetic characters, convert to uppercase, and handle 'J' as 'I'
+            key = key.replace(/[^a-zA-Z]/g, '').toUpperCase().replace(/J/g, 'I');
+
+            // Create a 5x5 matrix filled with empty strings
+            const matrix = Array.from(Array(5), () => new Array(5).fill(''));
+
+            // Track used letters to avoid duplication
+            const usedLetters = new Set();
+
+            let rowIndex = 0;
+            let colIndex = 0;
+
+            for (let i = 0; i < key.length; i++) {
+                const letter = key[i];
+
+                if (!usedLetters.has(letter)) {
+                    matrix[rowIndex][colIndex] = letter;
+                    usedLetters.add(letter);
+                    colIndex++;
+
+                    if (colIndex === 5) {
+                        colIndex = 0;
+                        rowIndex++;
+                    }
+
+                    if (rowIndex === 5) {
+                        // The matrix is full, stop adding letters
+                        break;
+                    }
+                }
+            }
+
+            // Fill the remaining empty cells with the remaining alphabet letters (except 'J')
+            const alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ';
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    if (matrix[i][j] === '') {
+                        for (let k = 0; k < alphabet.length; k++) {
+                            const letter = alphabet[k];
+                            if (!usedLetters.has(letter)) {
+                                matrix[i][j] = letter;
+                                usedLetters.add(letter);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return matrix;
+        }
+
+        function playfairCipherDecoder(text, keyMatrix) {
+            const cleanText = text.replace(/[^a-zA-Z]/g, '').toUpperCase().replace(/J/g, 'I');
+
+            let decodedText = '';
+            // Decoding logic
+            for (let i = 0; i < cleanText.length; i += 2) {
+                const char1 = cleanText[i];
+                const char2 = cleanText[i + 1] || 'X'; // Use 'X' for padding if needed
+
+                let row1, col1, row2, col2;
+
+                // Find the positions of the characters in the key matrix
+                for (let row = 0; row < 5; row++) {
+                    for (let col = 0; col < 5; col++) {
+                        if (keyMatrix[row][col] === char1) {
+                            row1 = row;
+                            col1 = col;
+                        }
+                        if (keyMatrix[row][col] === char2) {
+                            row2 = row;
+                            col2 = col;
+                        }
+                    }
+                }
+
+                let decodedChar1, decodedChar2;
+
+                if (row1 === row2) {
+                    // Characters are in the same row
+                    decodedChar1 = keyMatrix[row1][(col1 + 4) % 5];
+                    decodedChar2 = keyMatrix[row2][(col2 + 4) % 5];
+                } else if (col1 === col2) {
+                    // Characters are in the same column
+                    decodedChar1 = keyMatrix[(row1 + 4) % 5][col1];
+                    decodedChar2 = keyMatrix[(row2 + 4) % 5][col2];
+                } else {
+                    // Characters form a rectangle
+                    decodedChar1 = keyMatrix[row1][col2];
+                    decodedChar2 = keyMatrix[row2][col1];
+                }
+
+                decodedText += decodedChar1 + decodedChar2;
+            }
+
+            return decodedText;
+        }
+
+        document.getElementById('cipherForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const ciphertext = document.getElementById('ciphertext').value;
+            const key = document.getElementById('key').value;
+
+            // Create the Playfair key matrix
+            const keyMatrix = createPlayfairMatrix(key);
+
+            // Decode the ciphertext using the key matrix
+            const decodedText = playfairCipherDecoder(ciphertext, keyMatrix);
+
+            // Display the decoded text
+            document.getElementById('output').innerHTML = `<p>Decoded text: ${decodedText}</p>`;
+        });
+    </script>
+</body>
+</html>

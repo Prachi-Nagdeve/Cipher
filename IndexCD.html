@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caesar Cipher Encoder & Decoder</title>
+</head>
+<body>
+    <h1>Caesar Cipher Encoder & Decoder</h1>
+    <form id="cipherForm">
+        <label for="plaintext">Enter the text:</label>
+        <input type="text" id="text" name="text" required><br>
+
+        <label for="shift">Enter the shift amount:</label>
+        <input type="number" id="shift" name="shift" required><br>
+
+        <label for="operation">Choose an operation:</label>
+        <select id="operation" name="operation" required>
+            <option value="encode">Encode</option>
+            <option value="decode">Decode</option>
+        </select><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="output">
+        <p>Result will be displayed here.</p>
+    </div>
+
+    <script>
+        function caesarCipher(text, shift, operation) {
+            let result = '';
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                if (char.match(/[a-zA-Z]/)) {
+                    const isUpperCase = char === char.toUpperCase();
+                    const alphabet = isUpperCase ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : 'abcdefghijklmnopqrstuvwxyz';
+
+                    const charIndex = alphabet.indexOf(char);
+                    let shiftedIndex;
+
+                    if (operation === 'encode') {
+                        shiftedIndex = (charIndex + shift) % 26;
+                    } else {
+                        shiftedIndex = (charIndex - shift) % 26;
+                        if (shiftedIndex < 0) {
+                            shiftedIndex += 26;
+                        }
+                    }
+
+                    result += alphabet[shiftedIndex];
+                } else {
+                    result += char;
+                }
+            }
+
+            return result;
+        }
+
+        document.getElementById('cipherForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const text = document.getElementById('text').value;
+            const shiftAmount = parseInt(document.getElementById('shift').value);
+            const operation = document.getElementById('operation').value;
+
+            const result = caesarCipher(text, shiftAmount, operation);
+
+            // Display the result
+            document.getElementById('output').innerHTML = `<p>Result: ${result}</p>`;
+        });
+    </script>
+</body>
+</html>

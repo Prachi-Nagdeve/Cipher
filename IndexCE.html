@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caesar Cipher Encoder</title>
+</head>
+<body>
+    <h1>Caesar Cipher Encoder</h1>
+    <form id="cipherForm">
+        <label for="plaintext">Enter the plaintext:</label>
+        <input type="text" id="plaintext" name="plaintext" required><br>
+
+        <label for="shift">Enter the shift amount:</label>
+        <input type="number" id="shift" name="shift" required><br>
+
+        <input type="submit" value="Encode">
+    </form>
+
+    <div id="output">
+        <p>Encoded text will be displayed here.</p>
+    </div>
+
+    <script>
+        function caesarCipherEncoder(text, shift) {
+
+            let result = '';
+              
+            for (let i = 0; i < text.length; i++) {
+              const char = text[i];
+          
+              if (char.match(/[a-zA-Z]/)) {
+                const isUpperCase = char === char.toUpperCase();
+                const alphabet = isUpperCase ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : 'abcdefghijklmnopqrstuvwxyz';
+          
+                const charIndex = alphabet.indexOf(char);
+                const shiftedIndex = (charIndex + shift) % 26;
+          
+                if (shiftedIndex < 0) {
+                  result += alphabet[26 + shiftedIndex];
+                } else {
+                  result += alphabet[shiftedIndex];
+                }
+              } else {
+                result += char;
+              }
+            }
+          
+            return result;
+        }
+
+        document.getElementById('cipherForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const plaintext = document.getElementById('plaintext').value;
+            const shiftAmount = parseInt(document.getElementById('shift').value);
+
+            const encodedText = caesarCipherEncoder(plaintext, shiftAmount);
+
+            // Display the encoded text
+            document.getElementById('output').innerHTML = `<p>Encoded text: ${encodedText}</p>`;
+        });
+    </script>
+</body>
+</html>

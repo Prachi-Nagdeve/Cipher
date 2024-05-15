@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playfair Cipher Encoder</title>
+</head>
+<body>
+    <h1>Playfair Cipher Encoder</h1>
+    <form id="cipherForm">
+        <label for="plaintext">Enter the plaintext:</label>
+        <input type="text" id="plaintext" name="plaintext" required><br>
+
+        <label for="key">Enter the key (without repeating letters):</label>
+        <input type="text" id="key" name="key" required><br>
+
+        <input type="submit" value="Encode">
+    </form>
+
+    <div id="output">
+        <p>Encoded text will be displayed here.</p>
+    </div>
+
+    <script>
+        function createPlayfairMatrix(key) {
+            // Remove non-alphabetic characters, convert to uppercase, and handle 'J' as 'I'
+            key = key.replace(/[^a-zA-Z]/g, '').toUpperCase().replace(/J/g, 'I');
+
+            // Create a 5x5 matrix filled with empty strings
+            const matrix = Array.from(Array(5), () => new Array(5).fill(''));
+
+            // Track used letters to avoid duplication
+            const usedLetters = new Set();
+
+            let rowIndex = 0;
+            let colIndex = 0;
+
+            for (let i = 0; i < key.length; i++) {
+                const letter = key[i];
+
+                if (!usedLetters.has(letter)) {
+                    matrix[rowIndex][colIndex] = letter;
+                    usedLetters.add(letter);
+                    colIndex++;
+
+                    if (colIndex === 5) {
+                        colIndex = 0;
+                        rowIndex++;
+                    }
+
+                    if (rowIndex === 5) {
+                        // The matrix is full, stop adding letters
+                        break;
+                    }
+                }
+            }
+
+            // Fill the remaining empty cells with the remaining alphabet letters (except 'J')
+            const alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ';
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    if (matrix[i][j] === '') {
+                        for (let k = 0; k < alphabet.length; k++) {
+                            const letter = alphabet[k];
+                            if (!usedLetters.has(letter)) {
+                                matrix[i][j] = letter;
+                                usedLetters.add(letter);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return matrix;
+        }
+
+        function playfairCipherEncoder(text, keyMatrix) {
+            const cleanText = text.replace(/[^a-zA-Z]/g, '').toUpperCase().replace(/J/g, 'I');
+
+            let encodedText = '';
+            // Rest of the encoding logic remains the same
+            // ...
+
+            return encodedText;
+        }
+
+        document.getElementById('cipherForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const plaintext = document.getElementById('plaintext').value;
+            const key = document.getElementById('key').value;
+
+            // Create the Playfair key matrix
+            const keyMatrix = createPlayfairMatrix(key);
+
+            // Encode the plaintext using the key matrix
+            const encodedText = playfairCipherEncoder(plaintext, keyMatrix);
+
+            // Display the encoded text
+            document.getElementById('output').innerHTML = `<p>Encoded text: ${encodedText}</p>`;
+        });
+    </script>
+</body>
+</html>
